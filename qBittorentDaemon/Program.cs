@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using PipeCommunication;
 using qBittorentDaemon;
 using Serilog;
@@ -24,9 +25,10 @@ builder.Services.Configure<QBittorrentOptions>(
 
 builder.Services.AddPipeClient("piaPortMonitorServicePipe");
         
-builder.Services.AddHttpClient<IQBittorrentApiClient, QBittorrentApiClient>(client =>
+builder.Services.AddHttpClient<IQBittorrentApiClient, QBittorrentApiClient>((sp, client) =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/api/v2/");
+    var options = sp.GetRequiredService<IOptions<QBittorrentOptions>>().Value;
+    client.BaseAddress = new Uri(options.ApiUrl);
 });
 
 builder.Services.AddSingleton<IQBittorrentService, QBittorrentService>();
